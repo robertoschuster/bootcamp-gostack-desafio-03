@@ -17,12 +17,10 @@ module.exports = {
       state: Sequelize.STRING,
       city: Sequelize.STRING,
       zip_code: Sequelize.STRING,
-      created_at: {
-        type: Sequelize.DATE,
-      },
-      updated_at: {
-        type: Sequelize.DATE,
-      },
+
+      // Timestamps
+      created_at: Sequelize.DATE,
+      updated_at: Sequelize.DATE,
     });
   },
 
