@@ -2,11 +2,11 @@ import Sequelize from 'sequelize';
 import databaseConfig from '../config/database';
 import User from '../app/models/User';
 import Recipient from '../app/models/Recipient';
-import File from '../app/models/File';
 import Deliveryman from '../app/models/Deliveryman';
+import File from '../app/models/File';
 
 // Array para registrar todos os models da aplicação
-const models = [User, Recipient, File, Deliveryman];
+const models = [User, Recipient, Deliveryman, File];
 
 class Database {
   constructor() {
@@ -18,7 +18,9 @@ class Database {
     this.connection = new Sequelize(databaseConfig);
 
     // Carrega (registra) todos os models
-    models.map(model => model.init(this.connection));
+    models
+      .map(model => model.init(this.connection))
+      .map(model => model.associate && model.associate(this.connection.models));
   }
 }
 

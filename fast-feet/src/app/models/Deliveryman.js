@@ -8,6 +8,7 @@ class Deliveryman extends Model {
         email: Sequelize.STRING,
       },
       {
+        tableName: 'deliverymen',
         sequelize,
       }
     );
