@@ -45,7 +45,7 @@ class DeliveryController {
       ],
     });
 
-    res.json(deliveries);
+    return res.json(deliveries);
   }
 
   async store(req, res) {
