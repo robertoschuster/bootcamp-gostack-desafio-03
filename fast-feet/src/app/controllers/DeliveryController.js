@@ -1,5 +1,4 @@
 import * as Yup from 'yup';
-import { Op } from 'sequelize';
 import {
   parseISO,
   isBefore,
@@ -12,6 +11,7 @@ import Delivery from '../models/Delivery';
 import Deliveryman from '../models/Deliveryman';
 import Recipient from '../models/Recipient';
 import File from '../models/File';
+import Mail from '../../lib/Mail';
 
 class DeliveryController {
   async index(req, res) {
@@ -95,6 +95,20 @@ class DeliveryController {
     });
 
     /**
+     * Send mail
+     */
+    await Mail.sendMail({
+      to: `${deliveryman.name} <${deliveryman.email}>`,
+      subject: 'Nova encomenda para entraga',
+      template: 'creation',
+      context: {
+        recipient: recipient.name,
+        deliveryman: deliveryman.name,
+        product,
+      },
+    });
+
+    /**
      * Return
      */
     return res.json({
@@ -164,8 +178,14 @@ class DeliveryController {
      */
     if (start_date) {
       const startDate = parseISO(start_date);
-      const startHour = setSeconds(setMinutes(setHours(new Date(), 8), 0), 0);
-      const endHour = setSeconds(setMinutes(setHours(new Date(), 18), 0), 0);
+      const startHour = setSeconds(
+        setMinutes(setHours(new Date(start_date), 8), 0),
+        0
+      );
+      const endHour = setSeconds(
+        setMinutes(setHours(new Date(start_date), 18), 0),
+        0
+      );
 
       const refused =
         isBefore(startDate, startHour) || isAfter(startDate, endHour);
@@ -220,12 +240,12 @@ class DeliveryController {
   }
 
   async delete(req, res) {
-    const deliveryman = await Delivery.findByPk(req.params.id);
-    if (!deliveryman) {
+    const delivery = await Delivery.findByPk(req.params.id);
+    if (!delivery) {
       return res.status(400).json({ error: 'Delivery not found.' });
     }
 
-    await deliveryman.destroy();
+    await delivery.update({ canceled_at: new Date() });
     return res.status(200).json();
   }
 }
