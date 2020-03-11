@@ -120,12 +120,13 @@ class DeliverymanController {
     /**
      * Update
      */
-    const { id } = await deliveryman.update(req.body);
+    await deliveryman.update(req.body);
 
     return res.status(200).json({
-      id,
-      name,
-      email,
+      id: deliveryman.id,
+      name: deliveryman.name,
+      email: deliveryman.email,
+      avatar_id: deliveryman.avatar_id,
     });
   }
 

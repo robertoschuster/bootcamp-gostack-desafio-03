@@ -1,12 +1,5 @@
 import * as Yup from 'yup';
-import {
-  parseISO,
-  isBefore,
-  isAfter,
-  setHours,
-  setMinutes,
-  setSeconds,
-} from 'date-fns';
+import { parseISO, isBefore } from 'date-fns';
 import Delivery from '../models/Delivery';
 import Deliveryman from '../models/Deliveryman';
 import Recipient from '../models/Recipient';
@@ -172,30 +165,6 @@ class DeliveryController {
     }
 
     const { product, canceled_at, start_date, end_date } = req.body;
-
-    /**
-     * Check alowed times for deliveries (from 08:00 to 18:00)
-     */
-    if (start_date) {
-      const startDate = parseISO(start_date);
-      const startHour = setSeconds(
-        setMinutes(setHours(new Date(start_date), 8), 0),
-        0
-      );
-      const endHour = setSeconds(
-        setMinutes(setHours(new Date(start_date), 18), 0),
-        0
-      );
-
-      const refused =
-        isBefore(startDate, startHour) || isAfter(startDate, endHour);
-
-      if (refused) {
-        return res
-          .status(400)
-          .json({ error: 'Start date must be between 08:00 and 18:00.' });
-      }
-    }
 
     /**
      * Check end_date

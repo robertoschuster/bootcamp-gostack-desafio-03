@@ -6,6 +6,7 @@ import SessionController from './app/controllers/SessionController';
 import RecipientController from './app/controllers/RecipientController';
 import DeliverymanController from './app/controllers/DeliverymanController';
 import DeliveryController from './app/controllers/DeliveryController';
+import CollectionController from './app/controllers/CollectionController';
 import MyDeliveryController from './app/controllers/MyDeliveryController';
 import FileController from './app/controllers/FileController';
 import authMiddleware from './app/middlewares/auth';
@@ -22,6 +23,14 @@ routes.post('/sessions', SessionController.store);
 routes.get(
   '/deliveryman/:deliveryman_id/deliveries',
   MyDeliveryController.index
+);
+
+// Collection
+routes.post('/collection/:id', CollectionController.store);
+routes.put(
+  '/collection/:id',
+  upload.single('file'),
+  CollectionController.update
 );
 
 // Check authentication
