@@ -17,14 +17,14 @@ class MyDeliveryController {
     const end_date = delivered ? { [Op.ne]: null } : null;
 
     // Filtro por produto
-    const { product } = req.query;
+    const { q } = req.query;
 
     const deliveries = await Delivery.findAll({
       where: {
         deliveryman_id,
         end_date,
         canceled_at: null,
-        ...(product && { product: { [Op.iLike]: `%${product}%` } }),
+        ...(q && { product: { [Op.iLike]: `%${q}%` } }),
       },
       attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
       include: [

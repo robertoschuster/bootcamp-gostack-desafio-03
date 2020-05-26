@@ -9,11 +9,12 @@ import Mail from '../../lib/Mail';
 
 class DeliveryController {
   async index(req, res) {
-    const { product } = req.query;
+    // Filtro
+    const { q } = req.query;
 
     const deliveries = await Delivery.findAll({
       where: {
-        ...(product && { product: { [Op.iLike]: `%${product}%` } }),
+        ...(q && { product: { [Op.iLike]: `%${q}%` } }),
       },
       attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
       include: [
