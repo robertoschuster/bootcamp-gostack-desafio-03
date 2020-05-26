@@ -1,7 +1,30 @@
 import * as Yup from 'yup';
+import { Op } from 'sequelize';
 import Recipient from '../models/Recipient';
 
 class RecipientController {
+  async index(req, res) {
+    const { q } = req.query;
+
+    const recipients = await Recipient.findAll({
+      where: {
+        ...(q && { name: { [Op.iLike]: `%${q}%` } }),
+      },
+      attributes: [
+        'id',
+        'name',
+        'street',
+        'number',
+        'compl',
+        'state',
+        'city',
+        'zip_code',
+      ],
+    });
+
+    res.json(recipients);
+  }
+
   async store(req, res) {
     /**
      * Validação

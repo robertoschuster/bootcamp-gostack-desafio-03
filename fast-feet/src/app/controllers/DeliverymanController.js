@@ -5,8 +5,12 @@ import File from '../models/File';
 
 class DeliverymanController {
   async index(req, res) {
+    const { q } = req.query;
+
     const deliverymen = await Deliveryman.findAll({
-      // where: { },
+      where: {
+        ...(q && { name: { [Op.iLike]: `%${q}%` } }),
+      },
       attributes: ['id', 'name', 'email', 'avatar_id'],
       include: [
         {
