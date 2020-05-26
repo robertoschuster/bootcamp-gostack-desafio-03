@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { Op } from 'sequelize';
 import { parseISO, isBefore } from 'date-fns';
 import Delivery from '../models/Delivery';
 import Deliveryman from '../models/Deliveryman';
@@ -8,7 +9,12 @@ import Mail from '../../lib/Mail';
 
 class DeliveryController {
   async index(req, res) {
+    const { product } = req.query;
+
     const deliveries = await Delivery.findAll({
+      where: {
+        ...(product && { product: { [Op.iLike]: `%${product}%` } }),
+      },
       attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
       include: [
         {
