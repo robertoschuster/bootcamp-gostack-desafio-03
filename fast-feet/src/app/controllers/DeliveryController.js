@@ -10,13 +10,18 @@ import Mail from '../../lib/Mail';
 class DeliveryController {
   async index(req, res) {
     // Filtro
-    const { q } = req.query;
+    const { q, page = 1, pageLimit = 10 } = req.query;
 
-    const deliveries = await Delivery.findAll({
+    const { docs, pages, total } = await Delivery.paginate({
       where: {
         ...(q && { product: { [Op.iLike]: `%${q}%` } }),
       },
       attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
+      order: [['id', 'DESC']],
+      page,
+      paginate: pageLimit,
+      // limit: pageLimit,
+      // offset: (page - 1) * pageLimit,
       include: [
         {
           model: Recipient,
@@ -45,7 +50,11 @@ class DeliveryController {
       ],
     });
 
-    return res.json(deliveries);
+    // Adds header
+    res.setHeader('x-api-totalPages', pages);
+    res.setHeader('x-api-total', total);
+
+    return res.json(docs);
   }
 
   async store(req, res) {
