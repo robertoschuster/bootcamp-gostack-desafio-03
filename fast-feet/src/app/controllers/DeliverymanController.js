@@ -5,13 +5,17 @@ import File from '../models/File';
 
 class DeliverymanController {
   async index(req, res) {
-    const { q } = req.query;
+    // Filtro e Paginação
+    const { q, page = 1, pageLimit = 10 } = req.query;
 
-    const deliverymen = await Deliveryman.findAll({
+    const { docs, pages, total } = await Deliveryman.paginate({
       where: {
         ...(q && { name: { [Op.iLike]: `%${q}%` } }),
       },
       attributes: ['id', 'name', 'email', 'avatar_id'],
+      order: ['name', 'id'],
+      page,
+      paginate: pageLimit,
       include: [
         {
           model: File,
@@ -21,7 +25,10 @@ class DeliverymanController {
       ],
     });
 
-    res.json(deliverymen);
+    // Adds header
+    res.setHeader('x-api-totalPages', pages || 0);
+    res.setHeader('x-api-total', total || 0);
+    return res.json(docs);
   }
 
   async store(req, res) {

@@ -11,39 +11,58 @@ class DeliveryProblemController {
   async index(req, res) {
     const { id } = req.params;
 
-    const deliveries = await Delivery.findAll({
-      where: id ? { id } : undefined,
-      attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
+    // Filtro e Paginação
+    const { page = 1, pageLimit = 10 } = req.query;
+
+    const { docs, pages, total } = await DeliveryProblem.paginate({
+      // where: id ? { id } : undefined,
+      attributes: ['id', 'delivery_id', 'description'],
+      page,
+      paginate: pageLimit,
       include: [
         {
-          model: Recipient,
-          as: 'recipient',
+          model: Delivery,
+          as: 'delivery',
           attributes: [
             'id',
-            'name',
-            'street',
-            'number',
-            'compl',
-            'state',
-            'city',
-            'zip_code',
+            'product',
+            'canceled_at',
+            'start_date',
+            'end_date',
           ],
-        },
-        {
-          model: Deliveryman,
-          as: 'deliveryman',
-          attributes: ['id', 'name', 'email'],
-        },
-        {
-          model: DeliveryProblem,
-          as: 'problems',
-          attributes: ['id', 'delivery_id', 'description'],
+          include: [
+            {
+              model: Recipient,
+              as: 'recipient',
+              attributes: [
+                'id',
+                'name',
+                'street',
+                'number',
+                'compl',
+                'state',
+                'city',
+                'zip_code',
+              ],
+              required: true,
+            },
+            {
+              model: Deliveryman,
+              as: 'deliveryman',
+              attributes: ['id', 'name', 'email'],
+              required: true,
+            },
+          ],
+          where: id ? { id } : undefined,
           required: true,
         },
       ],
     });
 
-    return res.json(deliveries);
+    // Adds header
+    res.setHeader('x-api-totalPages', pages || 0);
+    res.setHeader('x-api-total', total || 0);
+    return res.json(docs);
   }
 
   async store(req, res) {

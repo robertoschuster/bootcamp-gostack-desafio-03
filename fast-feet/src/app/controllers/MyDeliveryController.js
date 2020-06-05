@@ -8,6 +8,9 @@ class MyDeliveryController {
   async index(req, res) {
     const { deliveryman_id } = req.params;
 
+    // Filtro e Paginação
+    const { q, page = 1, pageLimit = 10 } = req.query;
+
     const deliveryman = await Deliveryman.findByPk(deliveryman_id);
     if (!deliveryman) {
       return res.status(400).json({ error: 'Deliveryman not found.' });
@@ -16,10 +19,7 @@ class MyDeliveryController {
     const { delivered } = req.query;
     const end_date = delivered ? { [Op.ne]: null } : null;
 
-    // Filtro por produto
-    const { q } = req.query;
-
-    const deliveries = await Delivery.findAll({
+    const { docs, pages, total } = await Delivery.paginate({
       where: {
         deliveryman_id,
         end_date,
@@ -27,6 +27,8 @@ class MyDeliveryController {
         ...(q && { product: { [Op.iLike]: `%${q}%` } }),
       },
       attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
+      page,
+      paginate: pageLimit,
       include: [
         {
           model: Recipient,
@@ -55,7 +57,10 @@ class MyDeliveryController {
       ],
     });
 
-    return res.json(deliveries);
+    // Adds header
+    res.setHeader('x-api-totalPages', pages || 0);
+    res.setHeader('x-api-total', total || 0);
+    return res.json(docs);
   }
 }
 

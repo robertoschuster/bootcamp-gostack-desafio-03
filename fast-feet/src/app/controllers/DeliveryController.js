@@ -9,7 +9,7 @@ import Mail from '../../lib/Mail';
 
 class DeliveryController {
   async index(req, res) {
-    // Filtro
+    // Filtro e Paginação
     const { q, page = 1, pageLimit = 10 } = req.query;
 
     const { docs, pages, total } = await Delivery.paginate({
@@ -51,9 +51,8 @@ class DeliveryController {
     });
 
     // Adds header
-    res.setHeader('x-api-totalPages', pages);
-    res.setHeader('x-api-total', total);
-
+    res.setHeader('x-api-totalPages', pages || 0);
+    res.setHeader('x-api-total', total || 0);
     return res.json(docs);
   }
 

@@ -4,9 +4,10 @@ import Recipient from '../models/Recipient';
 
 class RecipientController {
   async index(req, res) {
-    const { q } = req.query;
+    // Filtro e Paginação
+    const { q, page = 1, pageLimit = 10 } = req.query;
 
-    const recipients = await Recipient.findAll({
+    const { docs, pages, total } = await Recipient.paginate({
       where: {
         ...(q && { name: { [Op.iLike]: `%${q}%` } }),
       },
@@ -20,9 +21,14 @@ class RecipientController {
         'city',
         'zip_code',
       ],
+      order: ['name', 'id'],
+      page,
+      paginate: pageLimit,
     });
-
-    res.json(recipients);
+    // Adds header
+    res.setHeader('x-api-totalPages', pages || 0);
+    res.setHeader('x-api-total', total || 0);
+    res.json(docs);
   }
 
   async store(req, res) {
